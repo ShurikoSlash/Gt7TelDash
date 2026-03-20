@@ -9,7 +9,7 @@
 <style>
   :root {
     --bg:#0A0A0A;--s1:#111;--s2:#181818;--s3:#222;--border:#2A2A2A;
-    --red:#E8002D;--red2:#FF1744;--red-dim:rgba(232,0,45,0.12);
+    --red:#00BFFF;--red2:#40D4FF;--red-dim:rgba(0,191,255,0.12);
     --white:#F0F0F0;--gray:#888;--gray2:#444;
     --yellow:#FFD600;--green:#00E676;--orange:#FF6D00;--blue:#2979FF;
     --sans:'Titillium Web',sans-serif;--mono:'Share Tech Mono',monospace;
@@ -191,7 +191,7 @@
   .shift-led{width:20px;height:20px;border-radius:50%;background:var(--s3);border:1px solid var(--border);transition:background .04s,box-shadow .04s;}
   .shift-led.green{background:#00E676;box-shadow:0 0 12px #00E676;}
   .shift-led.yellow{background:#FFD600;box-shadow:0 0 12px #FFD600;}
-  .shift-led.red{background:#E8002D;box-shadow:0 0 14px #E8002D;}
+  .shift-led.red{background:#00BFFF;box-shadow:0 0 14px #00BFFF;}
   .shift-led.white{background:#FFFFFF;box-shadow:0 0 20px #FFFFFF;}
 
   /* ── CENTER – speedometer ── */
@@ -222,7 +222,7 @@
   }
   #hud-rpm-block.rpm-green  {border-color:#00E676;box-shadow:0 0 16px rgba(0,230,118,0.3);}
   #hud-rpm-block.rpm-yellow {border-color:#FFD600;box-shadow:0 0 18px rgba(255,214,0,0.35);}
-  #hud-rpm-block.rpm-red    {border-color:#E8002D;box-shadow:0 0 22px rgba(232,0,45,0.45);}
+  #hud-rpm-block.rpm-red    {border-color:#00BFFF;box-shadow:0 0 22px rgba(0,191,255,0.45);}
   #hud-rpm-block.rpm-shift  {border-color:#FFF;box-shadow:0 0 30px rgba(255,255,255,0.6);}
 
   /* ── BOTTOM CENTER – pedals + rain ── */
@@ -338,11 +338,11 @@
     width:52px;height:52px;border-radius:50%;
     background:var(--red);border:none;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 20px rgba(232,0,45,0.4);
+    box-shadow:0 4px 20px rgba(0,191,255,0.4);
     transition:transform .2s,box-shadow .2s;
     color:#fff;font-size:22px;
   }
-  #engineer-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(232,0,45,0.6);}
+  #engineer-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(0,191,255,0.6);}
   #engineer-btn.speaking{animation:engpulse 0.8s ease-in-out infinite alternate;}
 
   #setup-btn{
@@ -368,7 +368,7 @@
     #setup-btn{bottom:80px;}
     #setup-panel{width:calc(100vw - 40px);right:20px;}
   }
-  @keyframes engpulse{from{box-shadow:0 4px 20px rgba(232,0,45,0.4);}to{box-shadow:0 4px 40px rgba(232,0,45,0.9);transform:scale(1.06);}}
+  @keyframes engpulse{from{box-shadow:0 4px 20px rgba(0,191,255,0.4);}to{box-shadow:0 4px 40px rgba(232,0,45,0.9);transform:scale(1.06);}}
 
   #engineer-panel{
     position:fixed;bottom:84px;right:20px;z-index:300;
@@ -1036,7 +1036,7 @@
       <div style="display:flex;align-items:center;gap:6px;">
         <div style="width:10px;height:10px;border-radius:50%;background:#00E676;"></div><span style="font-size:9px;color:var(--gray)">Low</span>
         <div style="width:10px;height:10px;border-radius:50%;background:#FFD600;margin-left:6px;"></div><span style="font-size:9px;color:var(--gray)">Mid</span>
-        <div style="width:10px;height:10px;border-radius:50%;background:#E8002D;margin-left:6px;"></div><span style="font-size:9px;color:var(--gray)">High</span>
+        <div style="width:10px;height:10px;border-radius:50%;background:#00BFFF;margin-left:6px;"></div><span style="font-size:9px;color:var(--gray)">High</span>
       </div>
       <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
         <button onclick="clearTelHistory()" style="background:var(--s2);border:1px solid var(--border);color:var(--gray);padding:5px 12px;font-size:10px;letter-spacing:1px;cursor:pointer;border-radius:2px;font-family:var(--sans);">X Clear session</button>
@@ -1087,7 +1087,7 @@
           <div style="display:flex;align-items:center;gap:16px;padding:6px 14px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;">
             <span style="font-size:9px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;">Pedals</span>
             <span style="font-size:9px;color:#00E676;">■ Throttle</span>
-            <span style="font-size:9px;color:#E8002D;">■ Brake</span>
+            <span style="font-size:9px;color:#00BFFF;">■ Brake</span>
           </div>
           <div style="flex:1;position:relative;overflow:hidden;">
             <canvas id="tel-chart-pedals" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
@@ -1252,7 +1252,7 @@
       <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
         <div class="cfg-color-row">
           <label class="cfg-lbl-sm">Primary color (accent)</label>
-          <input type="color" id="cfg-color-red" value="#E8002D" oninput="applyCssVar('--red',this.value);applyCssVar('--red2',this.value)">
+          <input type="color" id="cfg-color-red" value="#00BFFF" oninput="applyCssVar('--red',this.value);applyCssVar('--red2',this.value)">
         </div>
         <div class="cfg-color-row">
           <label class="cfg-lbl-sm">OK color / green</label>
@@ -1415,10 +1415,10 @@ function tyreColor(t) {
   if (t<100) return '#00E676';
   if (t<120) return '#FFD600';
   if (t<140) return '#FF6D00';
-  return '#E8002D';
+  return '#00BFFF';
 }
 function rpmColor(p) {
-  if (p<0.65) return '#E8002D';
+  if (p<0.65) return '#00BFFF';
   if (p<0.85) return '#FF6D00';
   if (p<0.93) return '#FFD600';
   return '#FFFFFF';
@@ -1437,7 +1437,7 @@ function drawG(ax,az){
   const sc=r/2.5;
   const tx=cx+Math.max(-r,Math.min(r,az*sc)), ty=cy+Math.max(-r,Math.min(r,-ax*sc));
   gx+=(tx-gx)*.25; gy+=(ty-gy)*.25;
-  gCtx.beginPath();gCtx.arc(gx,gy,7,0,Math.PI*2);gCtx.fillStyle='#E8002D';gCtx.fill();
+  gCtx.beginPath();gCtx.arc(gx,gy,7,0,Math.PI*2);gCtx.fillStyle='#00BFFF';gCtx.fill();
   gCtx.beginPath();gCtx.arc(cx,cy,3,0,Math.PI*2);gCtx.fillStyle='#444';gCtx.fill();
 }
 drawG(0,0);
@@ -1449,7 +1449,7 @@ const tyreCharts={};
   cv.style.position='absolute';cv.style.inset='0';cv.style.width='100%';cv.style.height='100%';
   tyreCharts[pos]=new Chart(cv.getContext('2d'),{
     type:'line',
-    data:{labels:[],datasets:[{data:[],borderColor:'#E8002D',backgroundColor:'rgba(232,0,45,0.07)',fill:true,tension:0.3,pointRadius:0,borderWidth:1.5}]},
+    data:{labels:[],datasets:[{data:[],borderColor:'#00BFFF',backgroundColor:'rgba(232,0,45,0.07)',fill:true,tension:0.3,pointRadius:0,borderWidth:1.5}]},
     options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
       scales:{x:{display:false},y:{ticks:{color:'#555',font:{size:10},callback:v=>v+'&deg;'},grid:{color:'#1A1A1A'},min:40,max:180}}}
   });
@@ -1460,7 +1460,7 @@ function updateTyreCharts(){
     const h=tyreHist[pos];
     tyreCharts[pos].data.labels=h.map((_,i)=>i);
     tyreCharts[pos].data.datasets[0].data=h;
-    tyreCharts[pos].data.datasets[0].borderColor=h.length?tyreColor(h[h.length-1]):'#E8002D';
+    tyreCharts[pos].data.datasets[0].borderColor=h.length?tyreColor(h[h.length-1]):'#00BFFF';
     tyreCharts[pos].update('none');
   });
 }
@@ -1570,7 +1570,7 @@ function renderTyreWearTable() {
   tbody.innerHTML = '';
   [...tyreWearPerLap].reverse().forEach(row => {
     const tr = document.createElement('tr');
-    const warnColor = v => v > 2 ? '#E8002D' : v > 1 ? '#FFD600' : '#888';
+    const warnColor = v => v > 2 ? '#00BFFF' : v > 1 ? '#FFD600' : '#888';
     tr.innerHTML = `
       <td style="padding:5px 8px;border-bottom:1px solid var(--s3);font-family:var(--mono);font-size:11px;">L${row.lap}</td>
       <td style="padding:5px 8px;border-bottom:1px solid var(--s3);text-align:center;font-family:var(--mono);font-size:11px;color:${warnColor(row.FL)};">-${row.FL.toFixed(2)}%</td>
@@ -1584,7 +1584,7 @@ function renderTyreWearTable() {
 // Laps chart
 const lapsChart=new Chart(document.getElementById('laps-chart').getContext('2d'),{
   type:'bar',
-  data:{labels:[],datasets:[{data:[],backgroundColor:'#E8002D44',borderColor:'#E8002D',borderWidth:1}]},
+  data:{labels:[],datasets:[{data:[],backgroundColor:'#00BFFF44',borderColor:'#00BFFF',borderWidth:1}]},
   options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
     scales:{x:{ticks:{color:'#555',font:{size:9}},grid:{display:false}},
             y:{ticks:{color:'#555',font:{size:9},callback:v=>(v/1000).toFixed(1)+'s'},grid:{color:'#1A1A1A'}}}}
@@ -1592,7 +1592,7 @@ const lapsChart=new Chart(document.getElementById('laps-chart').getContext('2d')
 function updateLapsChart(){
   lapsChart.data.labels=lapHistory.map(l=>'L'+l.num);
   lapsChart.data.datasets[0].data=lapHistory.map(l=>l.ms);
-  lapsChart.data.datasets[0].backgroundColor=lapHistory.map((_,i)=>i===bestLapIdx?'#E8002D':'#E8002D33');
+  lapsChart.data.datasets[0].backgroundColor=lapHistory.map((_,i)=>i===bestLapIdx?'#00BFFF':'#00BFFF33');
   lapsChart.update('none');
 }
 
@@ -1610,7 +1610,7 @@ function drawMap(){
   mapPoints.forEach((p,i)=>{const[sx,sy]=ts(p.x,p.z);i===0?mapCtx.moveTo(sx,sy):mapCtx.lineTo(sx,sy);});
   mapCtx.stroke();
   const l=mapPoints[mapPoints.length-1],[lx,ly]=ts(l.x,l.z);
-  mapCtx.beginPath();mapCtx.arc(lx,ly,6,0,Math.PI*2);mapCtx.fillStyle='#E8002D';mapCtx.fill();
+  mapCtx.beginPath();mapCtx.arc(lx,ly,6,0,Math.PI*2);mapCtx.fillStyle='#00BFFF';mapCtx.fill();
 }
 
 // ===================== REAL-TIME DELTA =====================
@@ -1727,7 +1727,7 @@ function updateLapHistory(d){
   if(bestLapMs<Infinity&&lms){
     const delta=lms-bestLapMs;
     const de=document.getElementById('dval');
-    de.textContent=fmtDelta(delta);de.style.color=delta<=0?'#00E676':'#E8002D';
+    de.textContent=fmtDelta(delta);de.style.color=delta<=0?'#00E676':'#00BFFF';
     const pct=Math.min(50,Math.abs(delta)/500*50);
     document.getElementById('dbl').style.width=delta<0?pct+'%':'0%';
     document.getElementById('dbr').style.width=delta>0?pct+'%':'0%';
@@ -1773,7 +1773,7 @@ function update(d){
   document.getElementById('rpm-num').textContent=d.rpm.toLocaleString();
   const rf=document.getElementById('rpm-fill');
   rf.style.width=(_topRpct*100).toFixed(1)+'%';
-  rf.style.background = _topRpct>=0.97?'#E8002D' : _topRpct>=0.80?'#FF6D00' : _topRpct>=0.65?'#FFD600':'rgba(0,230,118,0.7)';
+  rf.style.background = _topRpct>=0.97?'#00BFFF' : _topRpct>=0.80?'#FF6D00' : _topRpct>=0.65?'#FFD600':'rgba(0,230,118,0.7)';
 
   const sms=d.speed_kmh/3.6;
   ['FL','FR','RL','RR'].forEach(pos=>{
@@ -1782,7 +1782,7 @@ function update(d){
     document.getElementById('tt-'+pos).style.color=col;
     document.getElementById('tb-'+pos).style.borderColor=col+'55';
     document.getElementById('ts-'+pos).style.width=slip+'%';
-    document.getElementById('ts-'+pos).style.background=slip>20?'#E8002D':slip>10?'#FFD600':'#00E676';
+    document.getElementById('ts-'+pos).style.background=slip>20?'#00BFFF':slip>10?'#FFD600':'#00E676';
     document.getElementById('tsl-'+pos).textContent=slip;
     document.getElementById('tdt-'+pos).textContent=temp.toFixed(1)+'&deg;';
     document.getElementById('tdt-'+pos).style.color=col;
@@ -1800,7 +1800,7 @@ function update(d){
   const tankCap = parseFloat(document.getElementById('cfg-tank-cap')?.value)||100;
   document.getElementById('fuel-liters').textContent=`${(fp/100*tankCap).toFixed(1)} L de ${tankCap} L`;
   const fb=document.getElementById('fuel-bar');
-  fb.style.width=fp+'%';fb.style.background=fp>30?'#FFD600':fp>15?'#FF6D00':'#E8002D';
+  fb.style.width=fp+'%';fb.style.background=fp>30?'#FFD600':fp>15?'#FF6D00':'#00BFFF';
 
   document.getElementById('boost-val').textContent=d.boost_kgf.toFixed(2)+' kgf';
   document.getElementById('boost-bar').style.width=Math.min(100,Math.max(0,d.boost_kgf/2*100)).toFixed(1)+'%';
@@ -1895,7 +1895,7 @@ function drawHudMap(){
   hudMapCtx.stroke();
   const l=mapPoints[mapPoints.length-1],[lx,ly]=ts(l.x,l.z);
   hudMapCtx.beginPath(); hudMapCtx.arc(lx,ly,6,0,Math.PI*2);
-  hudMapCtx.fillStyle='#E8002D'; hudMapCtx.fill();
+  hudMapCtx.fillStyle='#00BFFF'; hudMapCtx.fill();
 }
 
 // ── RPM auto-learner ──
@@ -1997,10 +1997,10 @@ function updateHUD(d){
   //   97–100%→ intense red + glow (NEVER white on the bar)
   // The bar NEVER turns white — white is only for the blinking LED.
   if(rpct >= 0.97){
-    fillEl.style.cssText = `width:${fillPct}%;background:rgba(232,0,45,0.90);`;
+    fillEl.style.cssText = `width:${fillPct}%;background:rgba(0,191,255,0.90);`;
     blkEl.classList.add('rpm-red');
   } else if(rpct >= 0.90){
-    fillEl.style.cssText = `width:${fillPct}%;background:rgba(232,0,45,0.65);`;
+    fillEl.style.cssText = `width:${fillPct}%;background:rgba(0,191,255,0.65);`;
     blkEl.classList.add('rpm-red');
   } else if(rpct >= 0.80){
     fillEl.style.cssText = `width:${fillPct}%;background:rgba(255,214,0,0.60);`;
@@ -2050,7 +2050,7 @@ function updateHUD(d){
 
   if(delta !== null) {
     dv.textContent = fmtDelta(delta);
-    dv.style.color = delta <= 0 ? '#00E676' : '#E8002D';
+    dv.style.color = delta <= 0 ? '#00E676' : '#00BFFF';
   } else {
     dv.textContent = '—.—';
     dv.style.color = 'var(--gray)';
@@ -2072,7 +2072,7 @@ function updateHUD(d){
   fuelEl.style.color    = fp < 20 ? 'var(--red)' : fp < 40 ? 'var(--orange)' : '';
   const hfb = document.getElementById('hud-fuel-bar');
   hfb.style.width      = fp + '%';
-  hfb.style.background = fp > 40 ? '#FFD600' : fp > 20 ? '#FF6D00' : '#E8002D';
+  hfb.style.background = fp > 40 ? '#FFD600' : fp > 20 ? '#FF6D00' : '#00BFFF';
 
   // Consumption and detailed info — use fuelNorm (with hold of last valid value)
   updateFuelTracking(d);
@@ -2148,7 +2148,7 @@ function updateHUD(d){
     if(wfill){
       wfill.style.width      = wear.toFixed(1) + '%';
       // Green = good, yellow = caution, red = worn
-      wfill.style.background = wear > 70 ? '#00E676' : wear > 40 ? '#FFD600' : '#E8002D';
+      wfill.style.background = wear > 70 ? '#00E676' : wear > 40 ? '#FFD600' : '#00BFFF';
     }
     if(wpct) wpct.textContent = wear.toFixed(0) + '%';
   });
@@ -2392,9 +2392,9 @@ function applyCssVar(name, value) {
 }
 
 function resetColors() {
-  const defs = {'--red':'#E8002D','--red2':'#FF1744','--green':'#00E676','--yellow':'#FFD600','--bg':'#0A0A0A','--s1':'#111','--white':'#F0F0F0'};
+  const defs = {'--red':'#00BFFF','--red2':'#40D4FF','--green':'#00E676','--yellow':'#FFD600','--bg':'#0A0A0A','--s1':'#111','--white':'#F0F0F0'};
   Object.entries(defs).forEach(([k,v]) => document.documentElement.style.setProperty(k,v));
-  document.getElementById('cfg-color-red').value   = '#E8002D';
+  document.getElementById('cfg-color-red').value   = '#00BFFF';
   document.getElementById('cfg-color-green').value = '#00E676';
   document.getElementById('cfg-color-yellow').value= '#FFD600';
   document.getElementById('cfg-color-bg').value    = '#0A0A0A';
@@ -2911,7 +2911,7 @@ function initTelemetryCharts() {
     type:'line',
     data:{labels:[],datasets:[
       {label:'Throttle',data:[],borderColor:'#00E676',backgroundColor:'rgba(0,230,118,0.1)',fill:true,tension:0.2,pointRadius:0,borderWidth:1.5},
-      {label:'Brake',data:[],borderColor:'#E8002D',backgroundColor:'rgba(232,0,45,0.1)',fill:true,tension:0.2,pointRadius:0,borderWidth:1.5},
+      {label:'Brake',data:[],borderColor:'#00BFFF',backgroundColor:'rgba(232,0,45,0.1)',fill:true,tension:0.2,pointRadius:0,borderWidth:1.5},
     ]},
     options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
       scales:{x:{display:false},y:{ticks:{color:'#555',font:{size:9},callback:v=>v+'%'},grid:{color:'#1A1A1A'},min:0,max:100}}}
@@ -3007,7 +3007,7 @@ function drawTelMap() {
   }
   const last=pts[pts.length-1],[lx,ly]=tx(last.x,last.z);
   ctx.beginPath();ctx.arc(lx,ly,6,0,Math.PI*2);ctx.fillStyle='#FFF';ctx.fill();
-  ctx.beginPath();ctx.arc(lx,ly,4,0,Math.PI*2);ctx.fillStyle='#E8002D';ctx.fill();
+  ctx.beginPath();ctx.arc(lx,ly,4,0,Math.PI*2);ctx.fillStyle='#00BFFF';ctx.fill();
 }
 
 function telHeatColor(v, channel) {
