@@ -434,6 +434,40 @@
     .prof-input-num{width:100%;}
   }
 
+  /* HUD WIDGET BOARD */
+  #page-carrera.active { display:block !important; }
+  .hud-add-btn {
+    background:var(--s2);border:1px solid var(--border);color:var(--gray);
+    padding:3px 8px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:2px;
+    font-family:var(--sans);transition:border-color .15s,color .15s;white-space:nowrap;
+  }
+  .hud-add-btn:hover { border-color:var(--red);color:var(--white); }
+  .hud-widget {
+    position:absolute;background:rgba(17,17,17,0.92);border:1px solid var(--border);
+    border-radius:3px;overflow:hidden;min-width:80px;min-height:60px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  }
+  .hud-widget.edit-mode { border-color:var(--red);cursor:move; }
+  .hud-widget.edit-mode .hud-wdrag { display:flex; }
+  .hud-wdrag {
+    display:none;align-items:center;justify-content:space-between;
+    padding:4px 8px;background:var(--red);cursor:move;user-select:none;
+  }
+  .hud-wdrag-lbl { font-size:8px;letter-spacing:2px;color:#fff;font-weight:700; }
+  .hud-wclose {
+    background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;
+    font-size:14px;line-height:1;padding:0 2px;
+  }
+  .hud-wclose:hover { color:#fff; }
+  .hud-wcontent { padding:10px 12px;height:calc(100% - 0px); }
+  .hud-widget.edit-mode .hud-wcontent { height:calc(100% - 26px); }
+  .hud-wresize {
+    display:none;position:absolute;bottom:0;right:0;
+    width:14px;height:14px;cursor:se-resize;
+    background:linear-gradient(135deg,transparent 50%,var(--border) 50%);
+  }
+  .hud-widget.edit-mode .hud-wresize { display:block; }
+
   /* MOBILE PERFORMANCE MODE */
   .mobile-mode * { 
     box-shadow: none !important;
@@ -1111,126 +1145,83 @@
     </div>
   </div>
 
-  <!-- RACE HUD -->
-  <div class="page" id="page-carrera">
+  <!-- RACE HUD — Drag & Drop Widget Board -->
+  <div class="page" id="page-carrera" style="padding:0;overflow:hidden;position:relative;background:#0A0A0A;">
 
-    <!-- LEFT COL top+mid: delta, times, position, tyres -->
-    <div id="hud-left-top">
-      <!-- delta -->
-      <div class="hud-section">
-        <div class="hud-sec-lbl">Delta vs Best</div>
-        <div class="hud-delta" id="hud-delta-val">+0.000</div>
-        <div class="hud-lap-row">
-          <div class="hud-lap-block"><div class="hud-lap-lbl">Best</div><div class="hud-lap-val" id="hud-best">--:--.---</div></div>
-          <div class="hud-lap-block"><div class="hud-lap-lbl">Last</div><div class="hud-lap-val" id="hud-last">--:--.---</div></div>
-        </div>
+    <!-- Toolbar -->
+    <div id="hud-toolbar" style="position:absolute;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(10,10,10,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(4px);">
+      <span style="font-size:8px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;">Widgets</span>
+      <div id="hud-widget-btns" style="display:flex;gap:4px;flex-wrap:wrap;flex:1;">
+        <button class="hud-add-btn" onclick="hudAddWidget('speed')">Speed</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('gear')">Gear</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('rpm')">RPM</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('delta')">Delta</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('fuel')">Fuel</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('tyres')">Tyres</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('pedals')">Pedals</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('laps')">Lap Times</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('map')">Map</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('leds')">Shift LEDs</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('rain')">Rain</button>
+        <button class="hud-add-btn" onclick="hudAddWidget('position')">Position</button>
       </div>
-      <!-- position and lap -->
-      <div class="hud-section">
-        <div class="hud-sec-lbl">Position &nbsp;/&nbsp; Lap</div>
-        <div class="hud-pos-row">
-          <div class="hud-pos-num" id="hud-pos2">--</div>
-          <div class="hud-pos-of" id="hud-laps-cnt2">lap -- / --</div>
-        </div>
-      </div>
-      <!-- tyres -->
-      <div class="hud-section" style="flex:1">
-        <div class="hud-sec-lbl">Tyres &deg;C</div>
-        <div class="hud-tyre-grid">
-          <div class="hud-tbox" id="htb-FL"><div class="hud-tpos">FL</div><div class="hud-ttemp" id="htt-FL">--</div><div class="hud-twear-bar"><div class="hud-twear-fill" id="htw-FL" style="width:100%"></div></div><div class="hud-twear-pct" id="hwp-FL">--%</div></div>
-          <div class="hud-tbox" id="htb-FR"><div class="hud-tpos">FR</div><div class="hud-ttemp" id="htt-FR">--</div><div class="hud-twear-bar"><div class="hud-twear-fill" id="htw-FR" style="width:100%"></div></div><div class="hud-twear-pct" id="hwp-FR">--%</div></div>
-          <div class="hud-tbox" id="htb-RL"><div class="hud-tpos">RL</div><div class="hud-ttemp" id="htt-RL">--</div><div class="hud-twear-bar"><div class="hud-twear-fill" id="htw-RL" style="width:100%"></div></div><div class="hud-twear-pct" id="hwp-RL">--%</div></div>
-          <div class="hud-tbox" id="htb-RR"><div class="hud-tpos">RR</div><div class="hud-ttemp" id="htt-RR">--</div><div class="hud-twear-bar"><div class="hud-twear-fill" id="htw-RR" style="width:100%"></div></div><div class="hud-twear-pct" id="hwp-RR">--%</div></div>
-        </div>
-      </div>
-      <!-- DEBUG rain candidates -->
-      <div class="hud-section" id="hud-debug-section" style="flex:0;padding:8px 14px;border-bottom:1px solid var(--border);display:none">
-        <div class="hud-sec-lbl">DEBUG (double click on LEDs)</div>
-        <div id="hud-rain-debug" style="font-family:var(--mono);font-size:9px;color:var(--gray);line-height:1.8;word-break:break-all"></div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--gray);margin-top:4px">pkt_len: <span id="hud-pkt-len">--</span></div>
-      </div>
+      <button onclick="hudClearAll()" style="background:none;border:1px solid var(--border);color:var(--gray);padding:3px 8px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:2px;white-space:nowrap;">Clear all</button>
+      <button onclick="hudToggleEdit()" id="hud-edit-btn" style="background:var(--red);border:none;color:#fff;padding:3px 10px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:2px;white-space:nowrap;">EDIT</button>
     </div>
 
-    <!-- LEFT COL bottom: fuel -->
-    <div id="hud-bot-left">
-      <!-- Row 1: label + current liters (calculated from %) -->
-      <div style="display:flex;align-items:baseline;gap:6px;">
-        <div class="hud-fuel-lbl">Fuel</div>
-        <div style="margin-left:auto;display:flex;align-items:baseline;gap:4px;">
-          <span style="font-family:var(--mono);font-size:18px;font-weight:700;" id="hud-fuel-liters-cur">--</span>
-          <span style="font-family:var(--mono);font-size:10px;color:var(--gray)">L</span>
-        </div>
-      </div>
-      <!-- Row 2: bar + large % -->
-      <div style="display:flex;align-items:center;gap:8px;margin-top:3px;">
-        <div id="hud-fuel-bar-w" style="flex:1;"><div id="hud-fuel-bar"></div></div>
-        <div class="hud-fuel-val" id="hud-fuel-pct" style="font-size:16px;min-width:52px;text-align:right;">--%</div>
-      </div>
-      <!-- Row 3: estimated laps + consumption -->
-      <div style="display:flex;justify-content:space-between;margin-top:4px;">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--gray)">Est. laps: <span id="hud-fuel-laps" style="color:var(--green)">--</span></div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--gray)">Cons/lap: <span id="hud-fuel-cons" style="color:var(--yellow)">--</span></div>
-      </div>
-      <div style="font-family:var(--mono);font-size:10px;color:var(--gray);margin-top:3px" id="hud-cur-lap-time">Current lap: --:--.---</div>
+    <!-- Widget board -->
+    <div id="hud-board" style="position:absolute;top:42px;left:0;right:0;bottom:0;overflow:hidden;">
     </div>
 
-    <!-- CENTER top: shift LEDs -->
-    <div id="shift-light" ondblclick="toggleRainDebug()" title="Double click: rain debug">
-      <div class="shift-led" id="sl-0"></div><div class="shift-led" id="sl-1"></div>
-      <div class="shift-led" id="sl-2"></div><div class="shift-led" id="sl-3"></div>
-      <div class="shift-led" id="sl-4"></div><div class="shift-led" id="sl-5"></div>
-      <div class="shift-led" id="sl-6"></div><div class="shift-led" id="sl-7"></div>
-      <div class="shift-led" id="sl-8"></div><div class="shift-led" id="sl-9"></div>
-    </div>
-
-    <!-- CENTER mid: gear + speed + large RPM -->
-    <div id="hud-center">
-      <div class="hud-gear-big" id="hud-gear">N</div>
-      <div class="hud-speed-big" id="hud-speed">0</div>
-      <div class="hud-speed-unit">KM / H</div>
-      <div id="hud-rpm-block">
-        <div id="hud-rpm-fill-bg"></div>
-        <div id="hud-rpm-lbl">0 RPM</div>
+    <!-- legacy hidden elements needed by updateHUD -->
+    <div style="display:none">
+      <div id="hud-pos"></div><div id="hud-laps-cnt"></div>
+      <div id="hud-pos2"></div><div id="hud-laps-cnt2"></div>
+      <div id="hud-delta-val"></div>
+      <div id="hud-best"></div><div id="hud-last"></div>
+      <div id="hud-speed"></div><div id="hud-gear"></div>
+      <div id="hud-rpm-block"><div id="hud-rpm-fill-bg"></div><div id="hud-rpm-lbl"></div></div>
+      <div id="hud-fuel-pct"></div><div id="hud-fuel-bar"></div><div id="hud-fuel-liters-cur"></div>
+      <div id="hud-fuel-laps"></div><div id="hud-fuel-cons"></div>
+      <div id="hud-cur-lap-time"></div>
+      <div id="hud-th" class="hud-pfill"></div><div id="hud-br" class="hud-pfill"></div>
+      <div id="hud-rain-bar"></div>
+      <div id="hud-fuel-bar-w"><div id="hud-fuel-bar-inner"></div></div>
+      <div id="htb-FL"></div><div id="htb-FR"></div><div id="htb-RL"></div><div id="htb-RR"></div>
+      <div id="htt-FL"></div><div id="htt-FR"></div><div id="htt-RL"></div><div id="htt-RR"></div>
+      <div id="htw-FL"></div><div id="htw-FR"></div><div id="htw-RL"></div><div id="htw-RR"></div>
+      <div id="hwp-FL"></div><div id="hwp-FR"></div><div id="hwp-RL"></div><div id="hwp-RR"></div>
+      <canvas id="hud-map-canvas" width="1" height="1"></canvas>
+      <div id="hud-debug-section" style="display:none"><div id="hud-rain-debug"></div><div id="hud-pkt-len"></div></div>
+      <div id="shift-light">
+        <div class="shift-led" id="sl-0"></div><div class="shift-led" id="sl-1"></div>
+        <div class="shift-led" id="sl-2"></div><div class="shift-led" id="sl-3"></div>
+        <div class="shift-led" id="sl-4"></div><div class="shift-led" id="sl-5"></div>
+        <div class="shift-led" id="sl-6"></div><div class="shift-led" id="sl-7"></div>
+        <div class="shift-led" id="sl-8"></div><div class="shift-led" id="sl-9"></div>
       </div>
     </div>
-
-    <!-- CENTER bot: pedals + rain -->
-    <div id="hud-bot-center">
-      <div class="hud-pedals-row">
-        <div class="hud-pcol">
-          <div class="hud-ptrack"><div class="hud-pfill" id="hud-br" style="height:0%"></div></div>
-          <div class="hud-plbl">BRAKE</div>
-        </div>
-        <div class="hud-pcol">
-          <div class="hud-ptrack"><div class="hud-pfill" id="hud-th" style="height:0%"></div></div>
-          <div class="hud-plbl">ACCEL</div>
-        </div>
-      </div>
-      <div class="hud-rain-col">
-        <div class="hud-rain-lbl">RAIN</div>
-        <div id="hud-rain-w"><div id="hud-rain-bar"></div></div>
-      </div>
-    </div>
-
-    <!-- RIGHT COL: full map -->
-    <div id="hud-right-mid">
-      <canvas id="hud-map-canvas"></canvas>
-    </div>
-
-    <!-- legacy hidden elements -->
-    <div id="hud-right-top" style="display:none"><div id="hud-pos"></div><div id="hud-laps-cnt"></div></div>
-    <div id="hud-left-mid" style="display:none"></div>
-    <div id="hud-bot-right" style="display:none"></div>
-
-    <!-- CUSTOM IMAGE OVERLAYS -->
-    <img id="hud-custom-logo" src="" alt="logo">
-    <img id="hud-custom-bg"   src="" alt="bg">
-    <img id="hud-custom-car"  src="" alt="car">
-
+    <img id="hud-custom-logo" src="" alt="logo" style="display:none">
+    <img id="hud-custom-bg"   src="" alt="bg"   style="display:none">
+    <img id="hud-custom-car"  src="" alt="car"  style="display:none">
   </div>
 
   <!-- CONFIG PAGE -->
   <div class="page" id="page-config" style="display:none;overflow:auto;padding:18px;gap:16px;grid-template-columns:1fr 1fr 1fr;">
+
+    <!-- ZOOM CONTROL -->
+    <div class="card" style="grid-column:1/4;display:flex;align-items:center;gap:20px;padding:12px 16px;">
+      <div class="ctitle" style="border:none;padding:0;margin:0;white-space:nowrap;">Page Zoom</div>
+      <button class="cfg-btn" onclick="adjustZoom(-0.05)" style="padding:6px 14px;font-size:16px;font-weight:900;">−</button>
+      <div style="flex:1;display:flex;align-items:center;gap:10px;">
+        <input type="range" id="cfg-zoom" min="0.5" max="2.0" step="0.05" value="1.0"
+          style="flex:1;accent-color:var(--red);"
+          oninput="setZoom(parseFloat(this.value))">
+        <span id="cfg-zoom-val" style="font-family:var(--mono);font-size:13px;color:var(--white);min-width:42px;text-align:right;">100%</span>
+      </div>
+      <button class="cfg-btn" onclick="adjustZoom(0.05)" style="padding:6px 14px;font-size:16px;font-weight:900;">+</button>
+      <button class="cfg-btn" onclick="setZoom(1.0)" style="padding:6px 10px;font-size:9px;letter-spacing:1px;">RESET</button>
+    </div>
 
     <!-- HUD SECTIONS -->
     <div class="card" style="grid-column:1/2;">
@@ -1392,7 +1383,7 @@
     <div style="text-align:center;padding:40px;">
       <div style="font-size:48px;font-weight:900;color:#00BFFF;letter-spacing:6px;margin-bottom:16px;">TEST</div>
       <div style="font-size:14px;color:var(--gray);letter-spacing:2px;">If you can see this page, GitHub Pages is working correctly.</div>
-      <div style="margin-top:24px;font-family:var(--mono);font-size:11px;color:var(--gray2);">v2 — blue theme</div>
+      <div style="margin-top:24px;font-family:var(--mono);font-size:11px;color:var(--gray2);">v3 — drag & drop HUD, zoom control, FL wear fix</div>
     </div>
   </div>
 
@@ -1487,19 +1478,30 @@ function wearColor(pct) {
 
 function updateTyreWearTracking(d) {
   // Apply wear multiplier to server stress
-  // Server calculates stress without knowing the GT7 multiplier.
-  // We scale the received wear by the configured multiplier.
   const mult = raceSetup?.tyreMult || 1;
   const rawWear = d.tyre_wear;
   if(!rawWear) return;
 
-  // Scale: if mult=7, real wear is 7x faster
-  // wear_real = 100 - (100 - wear_server) * mult
+  // Scale wear and validate: ignore any tyre reporting exactly 100
+  // when others are below — GT7 sometimes sends FL=100 (no data) while moving
   const wear = {};
-  ['FL','FR','RL','RR'].forEach(p => {
-    const w = rawWear[p] ?? 100;
+  const TYRES = ['FL','FR','RL','RR'];
+  TYRES.forEach(p => {
+    const w = rawWear[p];
+    // If value is missing, null, or exactly 100 with no prior wear, treat as no-data
+    if(w == null || w === undefined) { wear[p] = null; return; }
     wear[p] = Math.max(0, Math.min(100, 100 - (100 - w) * mult));
   });
+
+  // Need at least 3 valid tyre readings to proceed
+  const validCount = TYRES.filter(p => wear[p] !== null).length;
+  if(validCount < 3) return;
+
+  // Fill missing tyre with average of the others
+  const validVals = TYRES.filter(p => wear[p] !== null).map(p => wear[p]);
+  const avg = validVals.reduce((a,b) => a+b, 0) / validVals.length;
+  TYRES.forEach(p => { if(wear[p] === null) wear[p] = avg; });
+
   const lap = d.current_lap;
   if(lap <= 0) return;
 
@@ -1514,11 +1516,16 @@ function updateTyreWearTracking(d) {
   if(lap !== _tyreWearPrevLap) {
     if(_tyreWearAtLapStart) {
       const consumed = {};
-      ['FL','FR','RL','RR'].forEach(p => {
+      TYRES.forEach(p => {
         consumed[p] = Math.max(0, (_tyreWearAtLapStart[p] - wear[p]));
       });
-      // Sanity: at least 0.01% wear to count as a real lap
-      if(consumed.FL > 0.01 || consumed.FR > 0.01) {
+      // Sanity: require ALL tyres to show reasonable consumption (0.01%–15% per lap)
+      // and no single tyre showing wildly more wear than the average (FL bug guard)
+      const cons = TYRES.map(p => consumed[p]);
+      const consAvg = cons.reduce((a,b) => a+b, 0) / 4;
+      const allSane = cons.every(c => c >= 0 && c < 15);
+      const noOutlier = cons.every(c => consAvg < 0.01 || c < consAvg * 5);
+      if(allSane && noOutlier && cons.some(c => c > 0.01)) {
         tyreWearHistory.push({lap: _tyreWearPrevLap, ...wear});
         tyreWearPerLap.push({lap: _tyreWearPrevLap, ...consumed});
         renderTyreWearTable();
@@ -1823,6 +1830,7 @@ function update(d){
   setChip('ch-rev',d.rev_limiter,true);setChip('ch-track',d.car_on_track,false);
   updateLapHistory(d);
   updateHUD(d);
+  hudUpdateAll(d);
   updateTyreWearTracking(d);
   updateEngineer(d);
   pushTelData(d);
@@ -2565,6 +2573,31 @@ function resetAll() {
 // Load config on startup
 document.addEventListener('DOMContentLoaded', loadCfg);
 setTimeout(loadCfg, 100); // fallback
+setTimeout(loadZoom, 150); // load zoom preference
+
+
+// ── Zoom control ──
+function setZoom(val) {
+  val = Math.max(0.5, Math.min(2.0, val));
+  document.getElementById('pages').style.zoom = val;
+  document.getElementById('topbar').style.zoom = val;
+  document.getElementById('tabs').style.zoom = val;
+  const slider = document.getElementById('cfg-zoom');
+  const lbl = document.getElementById('cfg-zoom-val');
+  if(slider) slider.value = val.toFixed(2);
+  if(lbl) lbl.textContent = Math.round(val * 100) + '%';
+  try { localStorage.setItem('gt7-zoom', val.toFixed(2)); } catch(e){}
+}
+function adjustZoom(delta) {
+  const current = parseFloat(document.getElementById('cfg-zoom')?.value || '1.0');
+  setZoom(current + delta);
+}
+function loadZoom() {
+  try {
+    const saved = localStorage.getItem('gt7-zoom');
+    if(saved) setZoom(parseFloat(saved));
+  } catch(e){}
+}
 
 // ===================== END CONFIG SYSTEM =====================
 
@@ -2896,6 +2929,7 @@ connect();
 // Init
 setTimeout(() => {
   loadProfile();
+  hudLoadLayout();
 }, 50);
 const TEL_MAX = 1800; // ~30s a 60fps
 const telBuffer = { speed:[], throttle:[], brake:[], gear:[], rpm:[], pos:[] };
@@ -3036,6 +3070,378 @@ function clearTelHistory() {
   const mn=document.getElementById('tel-min-speed'); if(mn) mn.textContent='—';
   const ov=document.getElementById('tel-map-overlay'); if(ov) ov.style.display='flex';
 }
+
+// ===================== HUD WIDGET BOARD =====================
+let _hudEditMode = false;
+let _hudWidgets = [];  // [{id, type, x, y, w, h, el}]
+let _hudDragging = null;
+let _hudResizing = null;
+let _hudDragOff = {x:0, y:0};
+let _hudLiveData = null;  // last telemetry packet
+
+// Widget definitions: type → {label, defaultW, defaultH, render(el, d)}
+const HUD_WIDGETS = {
+  speed: {
+    label:'Speed', w:160, h:120,
+    render(el, d) {
+      if(!d) return;
+      el.innerHTML = `
+        <div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:4px;">KM/H</div>
+        <div style="font-family:var(--mono);font-size:64px;font-weight:900;line-height:1;color:var(--white);">${Math.round(d.speed_kmh)}</div>`;
+    }
+  },
+  gear: {
+    label:'Gear', w:100, h:110,
+    render(el, d) {
+      if(!d) return;
+      const g = ['N','1','2','3','4','5','6','7','8','R'][d.gear] ?? d.gear;
+      el.innerHTML = `
+        <div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:4px;">GEAR</div>
+        <div style="font-family:var(--mono);font-size:72px;font-weight:900;line-height:1;color:var(--red);">${g}</div>`;
+    }
+  },
+  rpm: {
+    label:'RPM', w:240, h:90,
+    render(el, d) {
+      if(!d) return;
+      const limit = (_rpmLearnedMax > 2000) ? _rpmLearnedMax * 1.02 : (d.rpm_rev_limit > 2000 ? d.rpm_rev_limit : 8000);
+      const pct = Math.min(d.rpm / limit, 1.0) * 100;
+      const col = pct > 90 ? 'var(--red)' : pct > 75 ? '#FFD600' : '#00E676';
+      el.innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:6px;"><span>RPM</span><span style="font-family:var(--mono);color:var(--white);">${d.rpm.toLocaleString()}</span></div>
+        <div style="height:12px;background:var(--s3);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${pct.toFixed(1)}%;background:${col};border-radius:2px;transition:width .05s;"></div>
+        </div>`;
+    }
+  },
+  delta: {
+    label:'Delta', w:180, h:100,
+    render(el, d) {
+      if(!d) return;
+      const dv = document.getElementById('hud-delta-val');
+      const txt = dv?.textContent || '—.—';
+      const col = txt.startsWith('-') ? '#00E676' : 'var(--red)';
+      el.innerHTML = `
+        <div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:4px;">DELTA vs BEST</div>
+        <div style="font-family:var(--mono);font-size:40px;font-weight:700;color:${col};line-height:1;">${txt}</div>
+        <div style="font-size:9px;color:var(--gray);margin-top:4px;font-family:var(--mono);">Best: ${d.best_lap} &nbsp; Last: ${d.last_lap}</div>`;
+    }
+  },
+  fuel: {
+    label:'Fuel', w:200, h:110,
+    render(el, d) {
+      if(!d) return;
+      const fp = Math.min(Math.max((d.fuel_level??0)*100,0),100);
+      const col = fp < 20 ? 'var(--red)' : fp < 40 ? '#FF6D00' : '#FFD600';
+      const tankCap = parseFloat(document.getElementById('cfg-tank-cap')?.value)||100;
+      const liters = (fp/100*tankCap).toFixed(1);
+      el.innerHTML = `
+        <div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:4px;">FUEL</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <div style="font-family:var(--mono);font-size:36px;font-weight:700;color:${col};line-height:1;">${fp.toFixed(0)}<span style="font-size:14px;">%</span></div>
+          <div style="font-size:11px;color:var(--gray);font-family:var(--mono);">${liters}L</div>
+        </div>
+        <div style="height:6px;background:var(--s3);border-radius:1px;overflow:hidden;margin-top:6px;">
+          <div style="height:100%;width:${fp}%;background:${col};border-radius:1px;transition:width .3s;"></div>
+        </div>`;
+    }
+  },
+  tyres: {
+    label:'Tyres', w:220, h:160,
+    render(el, d) {
+      if(!d) return;
+      const tc = (t) => t<60?'#2979FF':t<80?'#00BCD4':t<100?'#00E676':t<120?'#FFD600':t<140?'#FF6D00':'var(--red)';
+      const rows = ['FL','FR','RL','RR'].map(p => {
+        const t = d.tyre_temp[p];
+        const w = d.tyre_wear ? Math.max(0, Math.min(100, 100-(100-(d.tyre_wear[p]??100))*(raceSetup?.tyreMult||1))) : 100;
+        const wc = w>70?'#00E676':w>40?'#FFD600':'var(--red)';
+        return `<div style="display:grid;grid-template-columns:28px 1fr 1fr;gap:4px;align-items:center;margin-bottom:3px;">
+          <div style="font-size:8px;letter-spacing:1px;color:var(--gray);">${p}</div>
+          <div style="font-family:var(--mono);font-size:13px;color:${tc(t)};">${t.toFixed(0)}°</div>
+          <div style="font-family:var(--mono);font-size:13px;color:${wc};">${w.toFixed(0)}%</div>
+        </div>`;
+      }).join('');
+      el.innerHTML = `<div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:6px;display:grid;grid-template-columns:28px 1fr 1fr;gap:4px;"><span></span><span>TEMP</span><span>WEAR</span></div>${rows}`;
+    }
+  },
+  pedals: {
+    label:'Pedals', w:120, h:140,
+    render(el, d) {
+      if(!d) return;
+      el.innerHTML = `
+        <div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:6px;">PEDALS</div>
+        <div style="display:flex;gap:10px;align-items:flex-end;height:calc(100% - 30px);">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;">
+            <div style="flex:1;width:100%;background:var(--s3);border-radius:2px;display:flex;align-items:flex-end;overflow:hidden;min-height:60px;">
+              <div style="width:100%;background:#00E676;height:${d.throttle_pct}%;transition:height .04s;"></div>
+            </div>
+            <div style="font-size:8px;color:var(--gray);">ACC</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;">
+            <div style="flex:1;width:100%;background:var(--s3);border-radius:2px;display:flex;align-items:flex-end;overflow:hidden;min-height:60px;">
+              <div style="width:100%;background:var(--red);height:${d.brake_pct}%;transition:height .04s;"></div>
+            </div>
+            <div style="font-size:8px;color:var(--gray);">BRK</div>
+          </div>
+        </div>`;
+    }
+  },
+  laps: {
+    label:'Lap Times', w:200, h:140,
+    render(el, d) {
+      const rows = [...lapHistory].reverse().slice(0,5).map((l,i) => {
+        const isBest = lapHistory.indexOf(l) === bestLapIdx;
+        const col = isBest ? 'var(--red)' : i===0 ? '#FFD600' : 'var(--gray)';
+        return `<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:${col};padding:2px 0;border-bottom:1px solid var(--s3);">
+          <span>L${l.num}</span><span>${l.time}</span>
+        </div>`;
+      }).join('') || '<div style="font-size:9px;color:var(--gray2);">No laps yet</div>';
+      el.innerHTML = `<div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:6px;">LAP TIMES</div>${rows}`;
+    }
+  },
+  map: {
+    label:'Map', w:220, h:220,
+    render(el, d) {
+      if(!el.querySelector('canvas')) {
+        el.innerHTML = '<canvas style="width:100%;height:100%;display:block;"></canvas>';
+      }
+      const cv = el.querySelector('canvas');
+      cv.width = el.offsetWidth - 24;
+      cv.height = el.offsetHeight - 24;
+      const W=cv.width, H=cv.height, ctx=cv.getContext('2d');
+      ctx.fillStyle='#0D0D0D'; ctx.fillRect(0,0,W,H);
+      if(mapPoints.length < 2) {
+        ctx.fillStyle='#444'; ctx.font='10px monospace';
+        ctx.textAlign='center'; ctx.fillText('Drive to trace',W/2,H/2);
+        return;
+      }
+      const pad=12;
+      const scX=(W-pad*2)/(mapBounds.maxX-mapBounds.minX||1);
+      const scZ=(H-pad*2)/(mapBounds.maxZ-mapBounds.minZ||1);
+      const sc=Math.min(scX,scZ);
+      const ts=(x,z)=>[pad+(x-mapBounds.minX)*sc, pad+(z-mapBounds.minZ)*sc];
+      ctx.beginPath(); ctx.strokeStyle='#383838'; ctx.lineWidth=2;
+      mapPoints.forEach((p,i)=>{const[sx,sy]=ts(p.x,p.z);i===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy);});
+      ctx.stroke();
+      if(d) {
+        const[lx,ly]=ts(d.position.x, d.position.z);
+        ctx.beginPath();ctx.arc(lx,ly,5,0,Math.PI*2);ctx.fillStyle='var(--red)';ctx.fill();
+      }
+    }
+  },
+  leds: {
+    label:'Shift LEDs', w:260, h:60,
+    render(el, d) {
+      const leds = document.querySelectorAll('#shift-light .shift-led');
+      const ledStates = Array.from(leds).map(l => ({
+        green: l.classList.contains('green'),
+        yellow: l.classList.contains('yellow'),
+        red: l.classList.contains('red'),
+        white: l.classList.contains('white'),
+      }));
+      const dots = ledStates.map(s => {
+        const col = s.white?'#FFF':s.red?'var(--red)':s.yellow?'#FFD600':s.green?'#00E676':'#2A2A2A';
+        return `<div style="width:18px;height:18px;border-radius:50%;background:${col};border:1px solid #333;"></div>`;
+      }).join('');
+      el.innerHTML = `<div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:6px;">SHIFT LEDS</div>
+        <div style="display:flex;gap:5px;justify-content:center;">${dots}</div>`;
+    }
+  },
+  rain: {
+    label:'Rain', w:160, h:70,
+    render(el, d) {
+      if(!d) return;
+      const rain = Math.min((d.rain_intensity??0)*100,100);
+      el.innerHTML = `
+        <div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:6px;">RAIN INTENSITY</div>
+        <div style="height:10px;background:var(--s3);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${rain}%;background:#2979FF;border-radius:2px;transition:width .3s;"></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--gray);margin-top:4px;">${rain.toFixed(0)}%</div>`;
+    }
+  },
+  position: {
+    label:'Position', w:160, h:100,
+    render(el, d) {
+      if(!d) return;
+      const pos = d.race_position > 0 ? d.race_position : '--';
+      const total = d.cars_in_race > 0 ? d.cars_in_race : '--';
+      const lap = d.current_lap > 0 ? d.current_lap : '--';
+      const laps = d.laps_in_race > 0 ? d.laps_in_race : '?';
+      el.innerHTML = `
+        <div style="font-size:8px;letter-spacing:2px;color:var(--gray);margin-bottom:2px;">POSITION</div>
+        <div style="display:flex;align-items:baseline;gap:4px;">
+          <div style="font-family:var(--mono);font-size:48px;font-weight:900;color:var(--red);line-height:1;">${pos}</div>
+          <div style="font-family:var(--mono);font-size:14px;color:var(--gray);">/${total}</div>
+        </div>
+        <div style="font-size:9px;color:var(--gray);font-family:var(--mono);margin-top:2px;">Lap ${lap}/${laps}</div>`;
+    }
+  },
+};
+
+function hudAddWidget(type) {
+  const def = HUD_WIDGETS[type];
+  if(!def) return;
+  const board = document.getElementById('hud-board');
+  const id = 'w_' + Date.now();
+
+  // Place at a random-ish position avoiding overlap
+  const x = 10 + (_hudWidgets.length % 4) * 30;
+  const y = 10 + Math.floor(_hudWidgets.length / 4) * 30;
+
+  const el = document.createElement('div');
+  el.className = 'hud-widget' + (_hudEditMode ? ' edit-mode' : '');
+  el.id = id;
+  el.style.left = x + 'px';
+  el.style.top  = y + 'px';
+  el.style.width  = def.w + 'px';
+  el.style.height = def.h + 'px';
+  el.innerHTML = `
+    <div class="hud-wdrag" data-id="${id}">
+      <span class="hud-wdrag-lbl">${def.label}</span>
+      <button class="hud-wclose" onclick="hudRemoveWidget('${id}')">x</button>
+    </div>
+    <div class="hud-wcontent" id="wc_${id}"></div>
+    <div class="hud-wresize" data-id="${id}"></div>`;
+
+  board.appendChild(el);
+  const w = {id, type, x, y, w:def.w, h:def.h, el};
+  _hudWidgets.push(w);
+
+  // Setup drag
+  const drag = el.querySelector('.hud-wdrag');
+  drag.addEventListener('mousedown',  e => hudStartDrag(e, w, false));
+  drag.addEventListener('touchstart', e => hudStartDrag(e, w, true), {passive:false});
+
+  // Setup resize
+  const resize = el.querySelector('.hud-wresize');
+  resize.addEventListener('mousedown',  e => hudStartDrag(e, w, false, true));
+  resize.addEventListener('touchstart', e => hudStartDrag(e, w, true, true), {passive:false});
+
+  // Render immediately
+  if(_hudLiveData) def.render(document.getElementById('wc_'+id), _hudLiveData);
+  hudSaveLayout();
+}
+
+function hudRemoveWidget(id) {
+  const idx = _hudWidgets.findIndex(w => w.id === id);
+  if(idx >= 0) {
+    _hudWidgets[idx].el.remove();
+    _hudWidgets.splice(idx, 1);
+    hudSaveLayout();
+  }
+}
+
+function hudClearAll() {
+  _hudWidgets.forEach(w => w.el.remove());
+  _hudWidgets = [];
+  hudSaveLayout();
+}
+
+function hudToggleEdit() {
+  _hudEditMode = !_hudEditMode;
+  const btn = document.getElementById('hud-edit-btn');
+  if(btn) {
+    btn.textContent = _hudEditMode ? 'DONE' : 'EDIT';
+    btn.style.background = _hudEditMode ? '#00E676' : 'var(--red)';
+    btn.style.color = _hudEditMode ? '#000' : '#fff';
+  }
+  _hudWidgets.forEach(w => {
+    w.el.classList.toggle('edit-mode', _hudEditMode);
+  });
+}
+
+function hudStartDrag(e, w, isTouch, isResize=false) {
+  if(!_hudEditMode) return;
+  e.preventDefault();
+  const pt = isTouch ? e.touches[0] : e;
+  if(isResize) {
+    _hudResizing = {w, startX: pt.clientX, startY: pt.clientY, startW: w.el.offsetWidth, startH: w.el.offsetHeight};
+  } else {
+    _hudDragOff = {x: pt.clientX - w.el.offsetLeft, y: pt.clientY - w.el.offsetTop};
+    _hudDragging = w;
+  }
+}
+
+document.addEventListener('mousemove', e => hudOnMove(e, false));
+document.addEventListener('touchmove', e => hudOnMove(e, true), {passive:false});
+document.addEventListener('mouseup',   () => hudEndDrag());
+document.addEventListener('touchend',  () => hudEndDrag());
+
+function hudOnMove(e, isTouch) {
+  if(!_hudDragging && !_hudResizing) return;
+  if(isTouch) e.preventDefault();
+  const pt = isTouch ? e.touches[0] : e;
+  const board = document.getElementById('hud-board');
+  const bRect = board.getBoundingClientRect();
+
+  if(_hudDragging) {
+    let x = pt.clientX - _hudDragOff.x;
+    let y = pt.clientY - _hudDragOff.y;
+    x = Math.max(0, Math.min(board.offsetWidth  - _hudDragging.el.offsetWidth,  x));
+    y = Math.max(0, Math.min(board.offsetHeight - _hudDragging.el.offsetHeight, y));
+    _hudDragging.el.style.left = x + 'px';
+    _hudDragging.el.style.top  = y + 'px';
+    _hudDragging.x = x; _hudDragging.y = y;
+  }
+  if(_hudResizing) {
+    const dx = pt.clientX - _hudResizing.startX;
+    const dy = pt.clientY - _hudResizing.startY;
+    const nw = Math.max(80,  _hudResizing.startW + dx);
+    const nh = Math.max(60, _hudResizing.startH + dy);
+    _hudResizing.w.el.style.width  = nw + 'px';
+    _hudResizing.w.el.style.height = nh + 'px';
+    _hudResizing.w.w = nw; _hudResizing.w.h = nh;
+  }
+}
+
+function hudEndDrag() {
+  if(_hudDragging || _hudResizing) hudSaveLayout();
+  _hudDragging = null;
+  _hudResizing = null;
+}
+
+function hudUpdateAll(d) {
+  _hudLiveData = d;
+  if(!document.getElementById('page-carrera')?.classList.contains('active')) return;
+  _hudWidgets.forEach(w => {
+    const def = HUD_WIDGETS[w.type];
+    const contentEl = document.getElementById('wc_' + w.id);
+    if(def && contentEl) def.render(contentEl, d);
+  });
+}
+
+function hudSaveLayout() {
+  try {
+    const layout = _hudWidgets.map(w => ({
+      type: w.type,
+      x: parseFloat(w.el.style.left),
+      y: parseFloat(w.el.style.top),
+      ww: w.el.offsetWidth,
+      hh: w.el.offsetHeight,
+    }));
+    localStorage.setItem('gt7-hud-layout', JSON.stringify(layout));
+  } catch(e){}
+}
+
+function hudLoadLayout() {
+  try {
+    const raw = localStorage.getItem('gt7-hud-layout');
+    if(!raw) return;
+    const layout = JSON.parse(raw);
+    layout.forEach(item => {
+      hudAddWidget(item.type);
+      const w = _hudWidgets[_hudWidgets.length-1];
+      w.el.style.left   = item.x  + 'px';
+      w.el.style.top    = item.y  + 'px';
+      w.el.style.width  = item.ww + 'px';
+      w.el.style.height = item.hh + 'px';
+      w.x=item.x; w.y=item.y; w.w=item.ww; w.h=item.hh;
+    });
+  } catch(e){}
+}
+// ===================== END WIDGET BOARD =====================
+
 // ===================== END TELEMETRY =====================
 
 window.addEventListener('resize',()=>{
