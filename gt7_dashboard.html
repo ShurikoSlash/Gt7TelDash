@@ -732,6 +732,7 @@
   <div class="tab" onclick="showTab('telemetria')" ontouchend="showTab('telemetria')">Telemetry</div>
   <div class="tab" onclick="showTab('carrera')" ontouchend="showTab('carrera')">Race</div>
   <div class="tab" onclick="showTab('config')" ontouchend="showTab('config')" id="tab-config">[CFG] Config</div>
+  <div class="tab" onclick="showTab('test')" ontouchend="showTab('test')" id="tab-test">TEST</div>
 </div>
 
 <!-- PAGES -->
@@ -1386,6 +1387,15 @@
 
   </div>
 
+  <!-- TEST PAGE -->
+  <div class="page" id="page-test" style="display:none;align-items:center;justify-content:center;">
+    <div style="text-align:center;padding:40px;">
+      <div style="font-size:48px;font-weight:900;color:#00BFFF;letter-spacing:6px;margin-bottom:16px;">TEST</div>
+      <div style="font-size:14px;color:var(--gray);letter-spacing:2px;">If you can see this page, GitHub Pages is working correctly.</div>
+      <div style="margin-top:24px;font-family:var(--mono);font-size:11px;color:var(--gray2);">v2 — blue theme</div>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -1400,7 +1410,7 @@ const MAX_H = 120;
 let _activeTab = 'live';
 function showTab(name) {
   _activeTab = name;
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['live','tyres','laps','map','telemetria','carrera','config'][i]===name));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['live','tyres','laps','map','telemetria','carrera','config','test'][i]===name));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id==='page-'+name));
   if (name==='tyres')     updateTyreCharts();
   if (name==='laps')      updateLapsChart();
