@@ -1,487 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
+<script src="https://cdn.tailwindcss.com"></script>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GT7 Telemetry</title>
+<script>
+  // ── VERSION — cambiá este string cada vez que hagas un update ──
+  const GT7_VERSION = 'v0.1.0';
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@200;300;400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg:#0A0A0A;--s1:#111;--s2:#181818;--s3:#222;--border:#2A2A2A;
-    --red:#00BFFF;--red2:#40D4FF;--red-dim:rgba(0,191,255,0.12);
-    --white:#F0F0F0;--gray:#888;--gray2:#444;
-    --yellow:#FFD600;--green:#00E676;--orange:#FF6D00;--blue:#2979FF;
-    --sans:'Titillium Web',sans-serif;--mono:'Share Tech Mono',monospace;
-  }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  /* Mobile touch fixes */
-  button,input,select,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
-  body{-webkit-text-size-adjust:100%;}
-  body{background:var(--bg);color:var(--white);font-family:var(--sans);overflow:hidden;height:100vh;display:flex;flex-direction:column;}
-
-  /* TOP BAR */
-  #topbar{display:flex;align-items:stretch;height:52px;background:var(--s1);border-bottom:2px solid var(--red);flex-shrink:0;}
-  .logo-block{display:flex;align-items:center;gap:8px;padding:0 18px;border-right:1px solid var(--border);}
-  .logo-gt{font-size:18px;font-weight:900;letter-spacing:3px;color:var(--red);}
-  .logo-sub{font-size:9px;letter-spacing:4px;color:var(--gray);font-weight:300;}
-  #status-block{display:flex;align-items:center;gap:8px;padding:0 14px;border-right:1px solid var(--border);font-size:10px;letter-spacing:2px;color:var(--gray);}
-  #dot{width:7px;height:7px;border-radius:50%;background:var(--gray2);transition:background .3s;}
-  #dot.live{background:var(--green);box-shadow:0 0 8px var(--green);}
-  .top-metrics{display:flex;align-items:stretch;flex:1;}
-  .tm{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 14px;border-right:1px solid var(--border);min-width:72px;}
-  .tm-l{font-size:8px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;}
-  .tm-v{font-family:var(--mono);font-size:17px;line-height:1.1;}
-  #tm-speed .tm-v{font-size:22px;font-weight:700;}
-  #tm-gear  .tm-v{font-size:26px;font-weight:900;color:var(--red);}
-  #rpm-strip{flex:1;display:flex;flex-direction:column;justify-content:center;padding:5px 14px;gap:3px;}
-  .rpm-hdr{display:flex;justify-content:space-between;font-size:8px;letter-spacing:2px;color:var(--gray);}
-  #rpm-num{font-family:var(--mono);font-size:12px;}
-  #rpm-track{height:8px;background:var(--s3);border-radius:1px;overflow:hidden;}
-  #rpm-fill{height:100%;width:0%;border-radius:1px;background:var(--red);transition:width .04s,background .1s;}
-  .rpm-ticks{display:flex;justify-content:space-between;font-size:8px;color:var(--gray2);font-family:var(--mono);}
-
-  /* TABS */
-  #tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;}
-  .tab{padding:9px 22px;font-size:10px;letter-spacing:2px;font-weight:600;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;border-right:1px solid var(--border);touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;}
-  .tab:hover{color:var(--white);}
-  .tab.active{color:var(--red);border-bottom-color:var(--red);}
-
-  /* PAGES */
-  #pages{flex:1;overflow:hidden;position:relative;}
-  .page{display:none;height:100%;overflow:auto;padding:14px;}
-  .page.active{display:grid;}
-
-  /* PAGE LIVE */
-  #page-live{grid-template-columns:240px 1fr 240px;gap:12px;}
-
-  /* CARD */
-  .card{background:var(--s1);border:1px solid var(--border);border-radius:2px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
-  .ctitle{font-size:8px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:2px;}
-
-  /* TYRE boxes */
-  .tyre-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:1;}
-  .tbox{background:var(--s2);border:1px solid var(--border);border-radius:2px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px;transition:border-color .3s;}
-  .tpos{font-size:8px;letter-spacing:2px;color:var(--gray);}
-  .tval{font-family:var(--mono);font-size:17px;transition:color .3s;}
-  .slip-bar{width:100%;height:3px;background:var(--s3);border-radius:1px;overflow:hidden;}
-  .slip-fill{height:100%;width:0%;border-radius:1px;transition:width .1s,background .2s;}
-  .slip-lbl{font-size:8px;color:var(--gray);font-family:var(--mono);}
-
-  /* PEDALS */
-  .pedals-row{display:flex;gap:10px;justify-content:center;align-items:flex-end;}
-  .pcol{display:flex;flex-direction:column;align-items:center;gap:3px;}
-  .ptrack{width:30px;height:80px;background:var(--s2);border:1px solid var(--border);border-radius:2px;display:flex;align-items:flex-end;overflow:hidden;}
-  .pfill{width:100%;transition:height .04s;}
-  #th-fill{background:var(--green);}
-  #br-fill{background:var(--red);}
-  .plbl{font-size:8px;letter-spacing:1px;color:var(--gray);}
-  .ppct{font-family:var(--mono);font-size:10px;}
-
-  /* STEERING */
-  .steer-wrap{position:relative;height:10px;margin-top:4px;}
-  .steer-track{height:4px;background:var(--s3);border-radius:2px;margin-top:3px;}
-  .steer-ctr{position:absolute;left:50%;top:0;width:1px;height:10px;background:var(--border);}
-  #steer-dot{position:absolute;top:1px;width:14px;height:8px;background:var(--red);border-radius:1px;transform:translateX(-50%);left:50%;transition:left .04s;}
-
-  /* FUEL */
-  .fuel-big{font-family:var(--mono);font-size:26px;}
-  .fuel-sub{font-size:11px;color:var(--gray);}
-  .fbar-t{height:5px;background:var(--s3);border-radius:1px;overflow:hidden;}
-  #fuel-bar{height:100%;width:0%;border-radius:1px;transition:width .5s,background .3s;}
-
-  /* BOOST */
-  .bval{font-family:var(--mono);font-size:20px;}
-  .bbar-t{height:5px;background:var(--s3);border-radius:1px;overflow:hidden;}
-  #boost-bar{height:100%;width:0%;background:var(--blue);border-radius:1px;transition:width .1s;}
-
-  /* G-METER */
-  #g-canvas{display:block;margin:0 auto;}
-
-  /* FLAGS */
-  .flags{display:flex;flex-wrap:wrap;gap:5px;}
-  .chip{font-size:8px;letter-spacing:2px;padding:3px 7px;border:1px solid var(--border);color:var(--gray2);border-radius:1px;transition:all .2s;text-transform:uppercase;}
-  .chip.on{color:var(--green);border-color:var(--green);background:rgba(0,230,118,.07);}
-  .chip.warn{color:var(--red);border-color:var(--red);background:var(--red-dim);}
-
-  /* PAGE TYRES */
-  #page-tyres{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;}
-  .tdc{background:var(--s1);border:1px solid var(--border);border-radius:2px;padding:14px;display:flex;flex-direction:column;gap:8px;}
-  .tdc-hdr{display:flex;justify-content:space-between;align-items:baseline;}
-  .tdc-pos{font-size:10px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;}
-  .tdc-temp{font-family:var(--mono);font-size:30px;transition:color .3s;}
-  .tdc-chart{position:relative;flex:1;min-height:120px;}
-
-  /* PAGE LAPS */
-  #page-laps{grid-template-columns:1fr 300px;gap:12px;}
-  .lap-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;}
-  .lap-table th{font-size:8px;letter-spacing:2px;color:var(--gray);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);font-family:var(--sans);font-weight:400;}
-  .lap-table td{padding:7px 10px;border-bottom:1px solid var(--s3);}
-  .lap-table tr:hover td{background:var(--s2);}
-  .lap-best td{color:var(--red) !important;}
-  .lap-last td{color:var(--yellow);}
-  .dp{color:var(--green);}
-  .dn{color:var(--red2);}
-
-  /* DELTA */
-  .delta-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:100%;}
-  .dlbl{font-size:9px;letter-spacing:3px;color:var(--gray);}
-  .dval{font-family:var(--mono);font-size:44px;font-weight:700;transition:color .3s;}
-  .dbar-w{width:100%;height:8px;background:var(--s3);border-radius:1px;position:relative;overflow:hidden;}
-  #dbl{position:absolute;right:50%;top:0;height:100%;width:0%;background:var(--green);transition:width .2s;}
-  #dbr{position:absolute;left:50%;top:0;height:100%;width:0%;background:var(--red2);transition:width .2s;}
-  .dctr{position:absolute;left:50%;top:-2px;width:1px;height:12px;background:var(--border);}
-
-  /* PAGE MAP */
-  #page-map{grid-template-columns:1fr 200px;gap:12px;}
-  .map-wrap{background:var(--s1);border:1px solid var(--border);border-radius:2px;overflow:hidden;}
-  #map-canvas{display:block;}
-
-  /* PAGE RACE – HUD */
-  #page-carrera{display:none;height:100%;overflow:hidden;padding:0;background:#0A0A0A;}
-  #page-carrera.active{display:grid;grid-template-columns:260px 1fr 300px;grid-template-rows:60px 1fr 90px;height:100%;}
-
-  /* ── LEFT COLUMN – main info ── */
-  #hud-left-top{
-    grid-column:1/2;grid-row:1/3;
-    display:flex;flex-direction:column;justify-content:flex-start;gap:0;
-    border-right:1px solid var(--border);overflow:hidden;
-  }
-  .hud-section{padding:12px 14px;border-bottom:1px solid var(--border);}
-  .hud-sec-lbl{font-size:7px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;margin-bottom:6px;}
-  .hud-delta{font-family:var(--mono);font-size:36px;font-weight:700;line-height:1;transition:color .3s;}
-  .hud-lap-row{display:flex;gap:14px;margin-top:10px;}
-  .hud-lap-block{display:flex;flex-direction:column;gap:3px;}
-  .hud-lap-lbl{font-size:7px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;}
-  .hud-lap-val{font-family:var(--mono);font-size:12px;}
-  .hud-pos-row{display:flex;align-items:baseline;gap:12px;}
-  .hud-pos-num{font-family:var(--mono);font-size:42px;font-weight:900;color:var(--red);line-height:1;}
-  .hud-pos-of{font-family:var(--mono);font-size:16px;color:var(--gray);}
-  .hud-tyre-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
-  .hud-tbox{background:var(--s2);border:1px solid var(--border);border-radius:2px;padding:5px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;transition:border-color .3s;}
-  .hud-tpos{font-size:7px;letter-spacing:1px;color:var(--gray);}
-  .hud-ttemp{font-family:var(--mono);font-size:16px;transition:color .3s;}
-  .hud-twear-bar{width:100%;height:4px;background:var(--s3);border-radius:1px;overflow:hidden;margin-top:2px;}
-  .hud-twear-fill{height:100%;width:100%;border-radius:1px;transition:width .5s,background .3s;}
-  .hud-twear-bar{width:100%;height:4px;background:var(--s3);border-radius:1px;overflow:hidden;margin-top:3px;}
-  .hud-twear-fill{height:100%;border-radius:1px;transition:width .5s, background .3s;}
-  .hud-twear-pct{font-size:8px;color:var(--gray);font-family:var(--mono);}
-
-  /* ── BOTTOM LEFT – fuel ── */
-  #hud-bot-left{
-    grid-column:1/2;grid-row:3/4;
-    border-right:1px solid var(--border);border-top:1px solid var(--border);
-    display:flex;flex-direction:column;justify-content:center;gap:5px;
-    padding:10px 14px;
-  }
-  .hud-fuel-row{display:flex;align-items:baseline;gap:8px;}
-  .hud-fuel-lbl{font-size:7px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;}
-  .hud-fuel-val{font-family:var(--mono);font-size:24px;font-weight:700;}
-  .hud-fuel-sub{font-size:10px;color:var(--gray);font-family:var(--mono);}
-  #hud-fuel-bar-w{height:6px;background:var(--s3);border-radius:1px;overflow:hidden;}
-  #hud-fuel-bar{height:100%;width:0%;border-radius:1px;transition:width .5s,background .3s;}
-
-  /* ── SHIFT LEDS ── */
-  #shift-light{
-    grid-column:2/3;grid-row:1/2;
-    display:flex;align-items:center;justify-content:center;gap:7px;
-    padding:0 20px;border-bottom:1px solid var(--border);
-    border-left:1px solid var(--border);border-right:1px solid var(--border);
-  }
-  .shift-led{width:20px;height:20px;border-radius:50%;background:var(--s3);border:1px solid var(--border);transition:background .04s,box-shadow .04s;}
-  .shift-led.green{background:#00E676;box-shadow:0 0 12px #00E676;}
-  .shift-led.yellow{background:#FFD600;box-shadow:0 0 12px #FFD600;}
-  .shift-led.red{background:#00BFFF;box-shadow:0 0 14px #00BFFF;}
-  .shift-led.white{background:#FFFFFF;box-shadow:0 0 20px #FFFFFF;}
-
-  /* ── CENTER – speedometer ── */
-  #hud-center{
-    grid-column:2/3;grid-row:2/3;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-    padding:10px 24px;border-left:1px solid var(--border);border-right:1px solid var(--border);
-  }
-  .hud-gear-big{font-family:var(--mono);font-size:52px;font-weight:900;color:var(--red);line-height:1;}
-  .hud-speed-big{font-family:var(--mono);font-size:90px;font-weight:900;line-height:1;color:var(--white);}
-  .hud-speed-unit{font-size:10px;letter-spacing:5px;color:var(--gray);margin-bottom:8px;}
-
-  /* RPM – large color rectangle */
-  #hud-rpm-block{
-    width:100%;height:48px;border-radius:3px;
-    background:var(--s3);border:1px solid var(--border);
-    transition:background .06s, box-shadow .06s, border-color .06s;
-    display:flex;align-items:center;justify-content:center;
-    position:relative;overflow:hidden;cursor:default;
-  }
-  #hud-rpm-fill-bg{
-    position:absolute;left:0;top:0;height:100%;width:0%;
-    transition:width .04s;
-  }
-  #hud-rpm-lbl{
-    position:relative;z-index:1;
-    font-family:var(--mono);font-size:14px;letter-spacing:2px;color:rgba(255,255,255,0.7);
-  }
-  #hud-rpm-block.rpm-green  {border-color:#00E676;box-shadow:0 0 16px rgba(0,230,118,0.3);}
-  #hud-rpm-block.rpm-yellow {border-color:#FFD600;box-shadow:0 0 18px rgba(255,214,0,0.35);}
-  #hud-rpm-block.rpm-red    {border-color:#00BFFF;box-shadow:0 0 22px rgba(0,191,255,0.45);}
-  #hud-rpm-block.rpm-shift  {border-color:#FFF;box-shadow:0 0 30px rgba(255,255,255,0.6);}
-
-  /* ── BOTTOM CENTER – pedals + rain ── */
-  #hud-bot-center{
-    grid-column:2/3;grid-row:3/4;
-    border-top:1px solid var(--border);border-left:1px solid var(--border);border-right:1px solid var(--border);
-    display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 16px;
-  }
-  .hud-pedals-row{display:flex;gap:8px;align-items:flex-end;}
-  .hud-pcol{display:flex;flex-direction:column;align-items:center;gap:3px;}
-  .hud-ptrack{width:24px;height:60px;background:var(--s2);border:1px solid var(--border);border-radius:2px;display:flex;align-items:flex-end;overflow:hidden;}
-  .hud-pfill{width:100%;transition:height .04s;}
-  #hud-th{background:var(--green);}
-  #hud-br{background:var(--red);}
-  .hud-plbl{font-size:7px;letter-spacing:1px;color:var(--gray);}
-  .hud-rain-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
-  .hud-rain-lbl{font-size:7px;letter-spacing:2px;color:var(--gray);}
-  #hud-rain-w{width:100%;height:8px;background:var(--s3);border-radius:1px;overflow:hidden;}
-  #hud-rain-bar{height:100%;width:0%;background:#2979FF;border-radius:1px;transition:width .5s;}
-
-  /* ── MAP – full right column ── */
-  #hud-right-mid{
-    grid-column:3/4;grid-row:1/4;
-    border-left:1px solid var(--border);
-    display:flex;align-items:stretch;overflow:hidden;padding:0;
-  }
-  #hud-map-canvas{display:block;width:100%;height:100%;}
-  #hud-right-top{display:none;}
-  #hud-left-mid{display:none;}
-  #hud-bot-right{display:none;}
-  .hud-pos-lbl,.hud-laps-cnt{display:none;}
-
-  /* OVERLAY */
-  #overlay{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
-  #overlay.hidden{display:none;}
-  .ov-logo{font-size:28px;font-weight:900;letter-spacing:6px;}
-  .ov-logo span{color:var(--red);}
-  .ov-sub{font-size:9px;letter-spacing:4px;color:var(--gray);font-family:var(--mono);}
-  .spinner{width:30px;height:30px;border:2px solid var(--s3);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  /* Reduce animations on mobile to improve performance */
-  @media(max-width:768px){
-    *{transition-duration:0.05s !important;animation-duration:0.05s !important;}
-    #rpm-fill,#fuel-bar,#hud-fuel-bar{transition:none !important;}
-  }
-  ::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:var(--s1);} ::-webkit-scrollbar-thumb{background:var(--s3);}
-
-  /* CONFIG PAGE */
-  #page-config { display:none; }
-  #page-config.active { display:grid !important; }
-  .cfg-toggle { display:flex;align-items:center;gap:10px;cursor:pointer;padding:5px 0;border-bottom:1px solid var(--border); }
-  .cfg-toggle:last-child { border-bottom:none; }
-  .cfg-toggle input[type=checkbox] { width:14px;height:14px;accent-color:var(--red);cursor:pointer; }
-  .cfg-lbl { font-size:11px;letter-spacing:1px;color:var(--white); }
-  .cfg-lbl-sm { font-size:9px;letter-spacing:1.5px;color:var(--gray);text-transform:uppercase; }
-  .cfg-color-row { display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 0; }
-  .cfg-color-row input[type=color] { width:32px;height:24px;border:1px solid var(--border);border-radius:2px;background:none;cursor:pointer;padding:1px; }
-  .cfg-color-row input[type=range] { accent-color:var(--red); }
-  .cfg-btn { background:var(--s2);border:1px solid var(--border);color:var(--white);padding:8px 14px;font-size:10px;letter-spacing:2px;cursor:pointer;border-radius:2px;font-family:var(--sans);transition:border-color .2s,color .2s; }
-  .cfg-btn:hover { border-color:var(--red);color:var(--red); }
-  .cfg-btn-sm { background:var(--s2);border:1px solid var(--border);color:var(--gray);padding:4px 10px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:2px;font-family:var(--sans);transition:border-color .2s,color .2s; }
-  .cfg-btn-sm:hover { border-color:var(--red);color:var(--red); }
-  .img-drop-zone { border:1px dashed var(--border);border-radius:3px;padding:12px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--s2);min-height:56px;display:flex;align-items:center;justify-content:center; }
-  .img-drop-zone:hover { border-color:var(--red); }
-  .img-drop-zone span { font-size:9px;letter-spacing:2px;color:var(--gray); }
-
-  /* CUSTOM IMAGE overlays in HUD */
-  #hud-custom-logo { position:absolute;top:10px;left:10px;z-index:10;max-height:44px;max-width:160px;object-fit:contain;display:none; pointer-events:none; }
-  #hud-custom-bg { position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;display:none;pointer-events:none; }
-  #hud-custom-car { position:absolute;z-index:5;pointer-events:none;display:none;max-height:140px;max-width:300px;object-fit:contain; }
-  #page-carrera { position:relative; }
-
-  /* TELEMETRY */
-  #page-telemetria { display:none; }
-  #page-telemetria.active { display:flex !important; flex-direction:column; overflow:hidden; height:100%; }
-
-  /* ── DRIVER PROFILE (onboarding) ── */
-  #profile-screen {
-    position:fixed;inset:0;z-index:2000;background:var(--bg);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:0;padding:24px;
-  }
-  #profile-screen.hidden{display:none;}
-  .prof-logo{font-size:32px;font-weight:900;letter-spacing:6px;color:var(--white);margin-bottom:4px;}
-  .prof-logo span{color:var(--red);}
-  .prof-sub{font-size:9px;letter-spacing:4px;color:var(--gray);margin-bottom:32px;}
-  .prof-card{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:28px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:16px;}
-  .prof-title{font-size:10px;letter-spacing:3px;color:var(--gray);text-transform:uppercase;margin-bottom:4px;}
-  .prof-row{display:flex;gap:10px;}
-  .prof-field{display:flex;flex-direction:column;gap:6px;flex:1;}
-  .prof-label{font-size:9px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;}
-  .prof-input{background:var(--s2);border:1px solid var(--border);color:var(--white);padding:10px 12px;font-size:14px;font-family:var(--sans);border-radius:2px;outline:none;transition:border-color .2s;width:100%;}
-  .prof-input:focus{border-color:var(--red);}
-  .prof-input-num{width:80px;text-align:center;font-family:var(--mono);font-size:20px;font-weight:700;}
-  .prof-select{background:var(--s2);border:1px solid var(--border);color:var(--white);padding:10px 12px;font-size:13px;font-family:var(--sans);border-radius:2px;outline:none;cursor:pointer;width:100%;}
-  .prof-btn{background:var(--red);border:none;color:#fff;padding:14px;font-size:12px;letter-spacing:3px;font-weight:700;cursor:pointer;border-radius:2px;font-family:var(--sans);transition:opacity .2s;text-transform:uppercase;margin-top:4px;}
-  .prof-btn:hover{opacity:0.85;}
-  .prof-avatar{width:64px;height:64px;border-radius:50%;background:var(--s3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px;}
-
-  /* Multiplier buttons */
-  .mult-btn{
-    background:var(--s2);border:1px solid var(--border);color:var(--gray);
-    padding:8px 4px;font-size:12px;font-family:var(--mono);font-weight:700;
-    text-align:center;border-radius:2px;cursor:pointer;transition:all .15s;
-    letter-spacing:1px;
-  }
-  .mult-btn:hover{border-color:var(--red);color:var(--white);}
-  .mult-btn.active{background:var(--red);border-color:var(--red);color:#fff;}
-
-  /* ── GT ENGINEER PANEL ── */
-  #engineer-btn{
-    position:fixed;bottom:20px;right:20px;z-index:300;
-    width:52px;height:52px;border-radius:50%;
-    background:var(--red);border:none;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 20px rgba(0,191,255,0.4);
-    transition:transform .2s,box-shadow .2s;
-    color:#fff;font-size:22px;
-  }
-  #engineer-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(0,191,255,0.6);}
-  #engineer-btn.speaking{animation:engpulse 0.8s ease-in-out infinite alternate;}
-
-  #setup-btn{
-    position:fixed;bottom:80px;right:20px;z-index:300;
-    width:52px;height:52px;border-radius:50%;
-    background:var(--s2);border:1px solid var(--border);cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 16px rgba(0,0,0,0.4);
-    transition:transform .2s,box-shadow .2s,border-color .2s;
-    font-size:20px;
-  }
-  #setup-btn:hover{transform:scale(1.08);border-color:var(--blue);box-shadow:0 4px 24px rgba(41,121,255,0.4);}
-
-  #setup-panel{
-    position:fixed;bottom:144px;right:20px;z-index:300;
-    width:300px;max-height:480px;
-    background:var(--s1);border:1px solid var(--border);border-radius:4px;
-    display:none;flex-direction:column;overflow:hidden;
-    box-shadow:0 8px 40px rgba(0,0,0,0.6);
-  }
-  #setup-panel.open{display:flex;}
-  @media(max-width:768px){
-    #setup-btn{bottom:80px;}
-    #setup-panel{width:calc(100vw - 40px);right:20px;}
-  }
-  @keyframes engpulse{from{box-shadow:0 4px 20px rgba(0,191,255,0.4);}to{box-shadow:0 4px 40px rgba(232,0,45,0.9);transform:scale(1.06);}}
-
-  #engineer-panel{
-    position:fixed;bottom:84px;right:20px;z-index:300;
-    width:300px;max-height:420px;
-    background:var(--s1);border:1px solid var(--border);border-radius:4px;
-    display:none;flex-direction:column;overflow:hidden;
-    box-shadow:0 8px 40px rgba(0,0,0,0.6);
-  }
-  #engineer-panel.open{display:flex;}
-  .eng-header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--s2);}
-  .eng-avatar{width:36px;height:36px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-  .eng-name{font-size:11px;font-weight:700;letter-spacing:1px;}
-  .eng-status{font-size:9px;color:var(--gray);letter-spacing:1px;}
-  .eng-log{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-height:300px;}
-  .eng-msg{font-size:11px;line-height:1.6;padding:8px 10px;border-radius:2px;background:var(--s2);border-left:2px solid var(--red);}
-  .eng-msg.info{border-left-color:var(--blue);}
-  .eng-msg.ok{border-left-color:var(--green);}
-  .eng-msg.warn{border-left-color:var(--yellow);}
-  .eng-msg.crit{border-left-color:var(--red);background:var(--red-dim);}
-  .eng-time{font-size:8px;color:var(--gray);font-family:var(--mono);margin-top:2px;}
-  .eng-footer{padding:8px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;}
-  .eng-voice-toggle{font-size:9px;letter-spacing:1px;color:var(--gray);cursor:pointer;display:flex;align-items:center;gap:4px;}
-  .eng-voice-dot{width:8px;height:8px;border-radius:50%;background:var(--gray2);}
-  .eng-voice-dot.active{background:var(--green);}
-
-  /* ── MOBILE RESPONSIVE ── */
-  @media (max-width: 768px) {
-    body{overflow:auto;}
-    #topbar{height:auto;flex-wrap:wrap;}
-    .top-metrics{flex-wrap:wrap;min-width:0;}
-    .tm{min-width:55px;padding:4px 8px;}
-    .tm-v{font-size:14px !important;}
-    #tm-speed .tm-v{font-size:18px !important;}
-    #tm-gear .tm-v{font-size:20px !important;}
-    #rpm-strip{display:none;}
-    #tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-    .tab{padding:8px 14px;font-size:9px;white-space:nowrap;}
-    #pages{overflow:auto;}
-    .page{height:auto;min-height:100%;overflow:visible;}
-    #page-live{grid-template-columns:1fr !important;padding:10px;}
-    #page-laps{grid-template-columns:1fr !important;}
-    #page-map{grid-template-columns:1fr !important;}
-    #page-tyres{grid-template-columns:1fr 1fr !important;grid-template-rows:auto !important;}
-    #page-config{grid-template-columns:1fr !important;}
-    #page-carrera{
-      grid-template-columns:1fr !important;
-      grid-template-rows:auto !important;
-      overflow:auto !important;
-    }
-    #hud-left-top,#hud-bot-left,#hud-center,#hud-bot-center,#hud-right-mid,#shift-light{
-      grid-column:auto !important;grid-row:auto !important;
-      border:1px solid var(--border) !important;
-    }
-    #hud-right-mid{height:200px;}
-    .hud-speed-big{font-size:60px !important;}
-    #engineer-panel{width:calc(100vw - 40px);right:20px;}
-    #page-telemetria > div:last-child{flex-direction:column !important;}
-    #page-telemetria > div:last-child > div:first-child{flex:0 0 220px !important;}
-  }
-  @media (max-width: 480px) {
-    #page-tyres{grid-template-columns:1fr !important;}
-    .prof-row{flex-direction:column;}
-    .prof-input-num{width:100%;}
-  }
-
-  /* HUD WIDGET BOARD */
-  #page-carrera.active { display:block !important; }
-  .hud-add-btn {
-    background:var(--s2);border:1px solid var(--border);color:var(--gray);
-    padding:3px 8px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:2px;
-    font-family:var(--sans);transition:border-color .15s,color .15s;white-space:nowrap;
-  }
-  .hud-add-btn:hover { border-color:var(--red);color:var(--white); }
-  .hud-widget {
-    position:absolute;background:rgba(17,17,17,0.92);border:1px solid var(--border);
-    border-radius:3px;overflow:hidden;min-width:80px;min-height:60px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.5);
-  }
-  .hud-widget.edit-mode { border-color:var(--red);cursor:move; }
-  .hud-widget.edit-mode .hud-wdrag { display:flex; }
-  .hud-wdrag {
-    display:none;align-items:center;justify-content:space-between;
-    padding:4px 8px;background:var(--red);cursor:move;user-select:none;
-  }
-  .hud-wdrag-lbl { font-size:8px;letter-spacing:2px;color:#fff;font-weight:700; }
-  .hud-wclose {
-    background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;
-    font-size:14px;line-height:1;padding:0 2px;
-  }
-  .hud-wclose:hover { color:#fff; }
-  .hud-wcontent { padding:10px 12px;height:calc(100% - 0px); }
-  .hud-widget.edit-mode .hud-wcontent { height:calc(100% - 26px); }
-  .hud-wresize {
-    display:none;position:absolute;bottom:0;right:0;
-    width:14px;height:14px;cursor:se-resize;
-    background:linear-gradient(135deg,transparent 50%,var(--border) 50%);
-  }
-  .hud-widget.edit-mode .hud-wresize { display:block; }
-
-  /* MOBILE PERFORMANCE MODE */
-  .mobile-mode * { 
-    box-shadow: none !important;
-    text-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-  .mobile-mode .spinner {
-    animation-duration: 1s !important;
-  }
-  .mobile-mode canvas {
-    image-rendering: optimizeSpeed !important;
-  }
-</style>
+<!-- THEME: editá gt7_theme.css para cambiar colores, fuentes y espaciado -->
+<link rel="stylesheet" href="gt7_theme.css">
+<!-- ENGINEER: lógica de carrera, estrategia, detección de pista -->
+<script src="engineer.js" defer></script>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
@@ -1409,6 +943,64 @@ function showTab(name) {
   if (name==='carrera')   drawHudMap();
   if (name==='telemetria') { if(!telChart_speed) initTelemetryCharts(); drawTelemetry(); }
 }
+const RaceEngineer = {
+    // Variables de estado
+    avgFuelPerLap: 0,
+    lapsRemaining: 0,
+    
+    // Se dispara cada vez que pasas por la línea de meta
+    onLapCompleted: function(datosVuelta) {
+        this.actualizarPromediosHistoricos(datosVuelta);
+        this.calcularEstrategia();
+    },
+
+    calcularEstrategia: function() {
+        let fuelNecesario = this.lapsRemaining * this.avgFuelPerLap;
+        let fuelActual = _hudLiveData.fuel; // Asumiendo que esta es tu variable global
+        
+        if (fuelNecesario > fuelActual) {
+            let fuelTarget = fuelActual / this.lapsRemaining;
+            // Acá llamas a tu función de UI para mostrar el mensaje
+            mostrarMensajeIngeniero("warn", `Lift & Coast. Target: ${fuelTarget.toFixed(2)}/vta`);
+        } else {
+            mostrarMensajeIngeniero("ok", `Nafta OK para el final.`);
+        }
+    },
+    actualizarPromediosHistoricos: function(datosVuelta) {
+        let fuelConsumido = datosVuelta.fuelStart - datosVuelta.fuelEnd;
+        this.avgFuelPerLap = ((this.avgFuelPerLap * lapHistory.length) + fuelConsumido) / (lapHistory.length + 1);
+        lapHistory.push(datosVuelta);
+        this.lapsRemaining = datosVuelta.totalLaps - lapHistory.length;
+    }
+};
+
+const TrackDetector = {
+    currentTrackId: null,
+
+    // Se llama para generar o devolver el ID de la pista
+    getTrackId: function(bounds) {
+        // Si ya lo detectó en esta sesión, lo devuelve directo
+        if (this.currentTrackId) return this.currentTrackId;
+
+        // Calculamos el tamaño total del circuito en metros
+        let width = Math.round(bounds.maxX - bounds.minX);
+        let height = Math.round(bounds.maxZ - bounds.minZ);
+
+        // Si el tamaño es muy chico, significa que recién largamos y no dimos una vuelta
+        if (width < 500 || height < 500) return null;
+
+        // Creamos el ID único combinando ancho y alto. Ej: "TRK-4520x3100"
+        this.currentTrackId = `TRK-${width}x${height}`;
+        
+        console.log("[Ingeniero] Pista identificada:", this.currentTrackId);
+        return this.currentTrackId;
+    },
+
+    // Para limpiar la memoria si cambiás de pista (reset)
+    reset: function() {
+        this.currentTrackId = null;
+    }
+};
 
 function tyreColor(t) {
   if (t<60)  return '#2979FF';
@@ -1727,10 +1319,37 @@ function updateLapHistory(d){
         if(wasBest){bestLapMs=lms;bestLapIdx=lapHistory.length-1;}
         finishLapTrace(lms, wasBest);  // pasar si fue mejor vuelta
         renderLapTable();updateLapsChart();
+        const trackId = TrackDetector.getTrackId(mapBounds);
+      if (trackId) {
+        console.log(`[TRACK] Current track ID: ${trackId}`);
+
+        // 1. Calculamos cuánto gastamos en la vuelta que acaba de terminar
+        const lapUsage = FuelAnalyst.calculateLapConsumption(d.fuel);
+        const avgUsage = FuelAnalyst.getAverage();
+        
+        // 2. Si ya identificamos la pista, podemos empezar a proyectar
+        const trackId = TrackDetector.getTrackId(mapBounds);
+        
+        if (trackId && avgUsage > 0) {
+            // Calculamos cuántas vueltas más aguantamos
+            let lapsPossible = Math.floor(d.fuel / avgUsage);
+            
+            // Enviamos mensaje al log del ingeniero (usando tu clase .eng-log)
+            const msg = `Consumo: ${lapUsage.toFixed(2)}% | Promedio: ${avgUsage.toFixed(2)}% | Autonomía: ${lapsPossible} vtas`;
+            const type = lapsPossible < 2 ? 'crit' : (lapsPossible < 4 ? 'warn' : 'info');
+            
+            // Asumo que tenés una función para imprimir en tu .eng-log
+            addEngineerMessage(type, msg); 
+          }
+        const lms = parseLapMs(d.last_lap);
+        }
+        FuelAnalyst.recordStartLevel(d.fuel);
+        // Aquí podrías cargar configuraciones específicas para esa pista usando trackId
+        startLapTrace();
+    _lastDeltaMs = 0;
       }
     }
-    startLapTrace();
-    _lastDeltaMs = 0;
+    
   }
   prevLapNum=n;
 
@@ -1762,6 +1381,40 @@ function renderLapTable(){
     tb.appendChild(tr);
   });
 }
+
+const FuelAnalyst = {
+    lastFuelLevel: 0,
+    fuelHistory: [], // Para promediar las últimas vueltas
+
+    // Se llama al iniciar una vuelta
+    recordStartLevel: function(currentFuel) {
+        this.lastFuelLevel = currentFuel;
+    },
+
+    // Se llama al cerrar la vuelta
+    calculateLapConsumption: function(currentFuel) {
+        if (this.lastFuelLevel <= 0) return 0;
+        
+        // El gasto de esta vuelta
+        let consumed = this.lastFuelLevel - currentFuel;
+        
+        // Si el valor es negativo, cargaste nafta en boxes, no lo contamos como consumo
+        if (consumed > 0) {
+            this.fuelHistory.push(consumed);
+            // Mantenemos solo las últimas 3 vueltas para un promedio "fresco"
+            if (this.fuelHistory.length > 3) this.fuelHistory.shift();
+        }
+
+        this.lastFuelLevel = currentFuel;
+        return consumed;
+    },
+
+    getAverage: function() {
+        if (this.fuelHistory.length === 0) return 0;
+        let sum = this.fuelHistory.reduce((a, b) => a + b, 0);
+        return sum / this.fuelHistory.length;
+    }
+};
 
 function calcSlip(ws,diam,spd){
   if(diam<=0||spd<1)return 0;
@@ -2692,7 +2345,7 @@ function applyProfile() {
   const logo = document.querySelector('.logo-gt');
   if(logo) logo.textContent = `${driverProfile.nationality} #${driverProfile.number}`;
   const sub = document.querySelector('.logo-sub');
-  if(sub) sub.textContent = driverProfile.name.toUpperCase();
+  if(sub) sub.textContent = driverProfile.name.toUpperCase() + '  ' + (window.GT7_VERSION || '');
   const engName = document.getElementById('eng-name-display');
   if(engName) engName.textContent = 'GT ENGINEER';
   const langEl = document.getElementById('eng-lang-display');
